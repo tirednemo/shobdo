@@ -1,5 +1,5 @@
 var recognition = new webkitSpeechRecognition();
-recognition.lang = "bn-BD";
+recognition.lang = "bn-IN";
 recognition.continuous = false;
 recognition.interimResults = true;
 
