@@ -1,5 +1,5 @@
 var recognition = new webkitSpeechRecognition();
-recognition.lang = "bn-IN";
+// recognition.lang = "bn-IN";
 recognition.continuous = false;
 recognition.interimResults = true;
 
@@ -42,54 +42,29 @@ function start() {
       if (event.results[i].isFinal) {
         var res = event.results[i][0].transcript.toLowerCase().trim();
         res = res.replace(/[\.。।]$/, "");
-        console.log(res); // what was said
+        console.log(res);
 
-        if (res === "দিকদর্শন") {
-          $(".menu").addClass("active");
-          speak("menu loaded. make your selection.");
-        } else if (res === "1" || res === "one") {
-          gotoItem("#two");
-          speak("navigating to the first link");
-        } else if (res === "2" || res === "two") {
-          gotoItem("#three");
-          speak("number two for you");
-        } else if (res === "3" || res === "three") {
-          gotoItem("#four");
-          speak("three. is the magic number");
-        } else if (res === "4" || res === "four") {
-          gotoItem("#five");
-          speak("heading to the fourth link");
-        } else if (res === "5" || res === "five") {
-          gotoItem("#six");
-          speak("last but not least");
+        if (res.startsWith("click")) {
+          clickItem(res);
+        } else if (res.startsWith("go")) {
+          navigate(res);
+        } else if (res.startsWith("open ")) {
+          let siteName = res.slice(5); // Remove the "open " part of the command
+          let url;
+        
+          if (siteName === "google") {
+            url = "https://www.google.com";
+          } else if (siteName === "facebook") {
+            url = "https://www.facebook.com";
+          } else {
+            speak("Sorry, I don't know how to open that site.");
+            return;
+          }
+        
+          window.open(url, '_blank');
+          speak("Opening " + siteName);
         } else if (res === "stop") {
           stop();
-        } else if (res === "auto") {
-          // Start auto scrolling
-          mode = "scroll";
-          scrollInterval = setInterval(function () {
-            window.scrollBy(0, 10); // Scroll down by 10px
-          }, 100); // Every 100ms
-          speak("Auto scrolling started.");
-        } else if (res === "stop" && mode === "scroll") {
-          // Stop auto scrolling
-          clearInterval(scrollInterval);
-          mode = "";
-          speak("Auto scrolling stopped.");
-        } else if (res === "faster" && mode === "scroll") {
-          // Increase scrolling speed
-          clearInterval(scrollInterval);
-          scrollInterval = setInterval(function () {
-            window.scrollBy(0, 20); // Scroll down by 20px
-          }, 100); // Every 100ms
-          speak("Scrolling speed increased.");
-        } else if (res === "slower" && mode === "scroll") {
-          // Decrease scrolling speed
-          clearInterval(scrollInterval);
-          scrollInterval = setInterval(function () {
-            window.scrollBy(0, 5); // Scroll down by 5px
-          }, 100); // Every 100ms
-          speak("Scrolling speed decreased.");
         }
         console.log("going");
         interval = setInterval(getRid, 3000);
@@ -97,6 +72,7 @@ function start() {
     }
   };
 }
+
 function getRid() {
   console.log("gone");
   clearInterval(interval);
@@ -104,7 +80,7 @@ function getRid() {
 }
 
 function stop() {
-  speak("do not say this is goodbye. it is more of a see you later");
+  // speak("do not say this is goodbye. it is more of a see you later");
   recognition.stop();
   var micOn = document.getElementById("mic-on");
   var micOff = document.getElementById("mic-off");
@@ -144,3 +120,93 @@ $("nav ul")
     gotoItem($href);
     return false;
   });
+
+function clickItem(res) {
+  mode = "click";
+  if (res === "click" || res === "click audio" || res === "click media") {
+    let audioElement = document.querySelector("audio");
+    if (audioElement.paused) {
+      audioElement.play();
+      speak("Audio started.");
+    } else {
+      audioElement.pause();
+      speak("Audio paused.");
+    }
+  } else if (res === "click button") {
+    let buttonElement = document.querySelector("button");
+    buttonElement.click();
+    speak("Button clicked.");
+  } else if (res === "click checkbox") {
+    let checkboxElement = document.querySelector('input[type="checkbox"]');
+    checkboxElement.checked = !checkboxElement.checked;
+    speak("Checkbox toggled.");
+  } else if (res === "click color") {
+    let colorElement = document.querySelector('input[type="color"]');
+    colorElement.click();
+    speak("Color input clicked.");
+  } else if (res === "click date") {
+    let dateElement = document.querySelector('input[type="date"]');
+    dateElement.click();
+    speak("Date input clicked.");
+  } else if (res === "click file") {
+    let fileElement = document.querySelector('input[type="file"]');
+    fileElement.click();
+    speak("File input clicked.");
+  } else if (res === "click image") {
+    let imageElement = document.querySelector("img");
+    imageElement.click();
+    speak("Image clicked.");
+  } else if (res === "click link") {
+    let linkElement = document.querySelector("a");
+    linkElement.click();
+    speak("Link clicked.");
+  } else if (res === "click range") {
+    let rangeElement = document.querySelector('input[type="range"]');
+    rangeElement.click();
+    speak("Range input clicked.");
+  } else if (res === "click radio") {
+    let radioElements = document.querySelectorAll('input[type="radio"]');
+    radioElements.forEach((radio, index) => {
+      if (index === 0 && !radio.checked) {
+        radio.checked = true;
+        speak("Radio button A selected.");
+      } else {
+        radio.checked = false;
+      }
+    });
+  } else if (res === "click select") {
+    let selectElement = document.querySelector("select");
+    selectElement.click();
+    speak("Select input clicked.");
+  } else if (res === "click text") {
+    let textElement = document.querySelector('input[type="text"]');
+    textElement.focus();
+    speak("Text input focused.");
+  } else if (res === "click video" || res === "click media") {
+    let videoElement = document.querySelector("video");
+    if (videoElement.paused) {
+      videoElement.play();
+      speak("Video started.");
+    } else {
+      videoElement.pause();
+      speak("Video paused.");
+    }
+  }
+}
+
+
+function navigate(res){
+  if (res === "go back") {
+    window.history.back();
+    speak("Navigated back.");
+  } else if (res === "go forward") {
+    window.history.forward();
+    speak("Navigated forward.");
+  } else if (res === "reload") {
+    location.reload();
+    speak("Page reloaded.");
+  } else if (res === "stop") {
+    window.stop();
+    speak("Page loading stopped.");
+  }
+}
